@@ -9,6 +9,7 @@ class NonTerminal;
  */
 class Symbol {
 public:
+  // Symbol(std::string str_name);//
   virtual ~Symbol() = default;
   const Terminal& toTerminal() const;
   const NonTerminal& toNonTerminal() const;
@@ -16,6 +17,11 @@ public:
   virtual bool isNonTerminal() const = 0;
   bool operator==(const Symbol& symbol) const;
   bool operator!=(const Symbol& symbol) const;
+
+  // std::string getStr() const;
+
+// private://
+  // std::string str_name;
 };
 }
 

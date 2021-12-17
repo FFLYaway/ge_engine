@@ -19,7 +19,7 @@ public:
   Option& operator[](unsigned long index) const;
   unsigned long size() const;
 
-private:
+private://name和options两个成员变量
   std::string name;
   std::vector<std::unique_ptr<Option>> options;
 };

@@ -20,7 +20,7 @@ public:
 
 private:
   std::string start;
-  std::unordered_map<std::string, std::unique_ptr<Rule>> rules;
+  std::unordered_map<std::string, std::unique_ptr<Rule>> rules;//rules的结构为哈希表
 };
 }
 

@@ -17,6 +17,7 @@ void Option::addTerminal(unique_ptr<Terminal> terminal) {
   symbols.push_back(move(terminal));
 }
 
+//
 Symbol& Option::operator[](unsigned long index) const {
   return *symbols[index];
 }

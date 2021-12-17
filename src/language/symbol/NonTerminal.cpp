@@ -5,7 +5,7 @@
 using namespace gram;
 using namespace std;
 
-NonTerminal::NonTerminal(Rule& rule) : rule(rule) {
+NonTerminal::NonTerminal(Rule& rule ) : rule(rule)  {
   //
 }
 
@@ -28,3 +28,10 @@ bool NonTerminal::operator==(const NonTerminal& nonTerminal) const {
 bool NonTerminal::operator!=(const NonTerminal& nonTerminal) const {
   return !operator==(nonTerminal);
 }
+
+//与终端节点处定义相同方法211205
+// string NonTerminal::getValue() const {
+//   return value;
+// }
+
+//end_211205

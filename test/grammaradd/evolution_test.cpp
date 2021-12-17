@@ -26,6 +26,8 @@
 
 #include "StringDiffEvaluator.h"
 
+// #include "readGrammar.h"
+
 using namespace fakeit;
 using namespace gram;
 using namespace std;
@@ -44,13 +46,15 @@ TEST_CASE("evolution_test") {
   auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
   auto reproducer = make_unique<PassionateReproducer>(move(selector), move(crossover), move(mutation));
 
-  // string grammarString = "<word> ::= <word> <char> | <char>\n"
-  //                        "<char> ::= \"g\" | \"r\" | \"a\" | \"m\"";
-
-  string grammarString = "<s> ::= <Sequence> | <Fallback>\n"
-                         "<Sequence> ::= <Fallback> <excution> | <excution> <excution>\n"
-                         "<Fallback> ::= <Sequence> <excution> | <excution> <excution>\n"
-                         "<excution> ::= \"g\" | \"r\" | \"a\" | \"m\"";
+  string grammarString = "<word> ::= <word> <char> | <char>\n"
+                         "<char> ::= \"g\" | \"r\" | \"a\" | \"m\"";
+  
+  string grammarString = "<s> ::= <Sequence> </Sequence> | <Fallback> </Fallback>\n"
+                         "<Sequence> ::= <Fallback> </Fallback> <Fallback> </Fallback>| <Fallback> </Fallback> <char> | <char> <Fallback> </Fallback>|<char> </char>\n"
+                         "<Fallback> ::= <Sequence> </Sequence> <Sequence> </Sequence>| <Sequence> </Sequence> <char> | <char> <Sequence> </Sequence> | <char> </char>\n"
+                         "</Sequence> ::= \"\"\n"
+                         "</Fallback> ::= \"\"\n"
+                         "<char> ::= \"g\" | \"r\" | \"a\" | \"m\"";
 
   BnfRuleParser parser;
 
