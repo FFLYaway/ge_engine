@@ -1,5 +1,5 @@
-#ifndef GRAM_TEST_STRING_DIFF_EVALUATOR
-#define GRAM_TEST_STRING_DIFF_EVALUATOR
+#ifndef GRAM_TEST_ACTION_DIFF_EVALUATOR
+#define GRAM_TEST_ACTION_DIFF_EVALUATOR
 
 #include <memory>
 #include <string>
@@ -9,14 +9,15 @@
 #include "gram/individual/Phenotype.h"
 #include "gram/language/mapper/ContextFreeMapper.h"
 
-class StringDiffEvaluator : public gram::Evaluator {
+class ActionDiffEvaluator : public gram::Evaluator {
 public:
-  StringDiffEvaluator(std::string desired);
+  ActionDiffEvaluator(unsigned long desired);
   gram::Fitness evaluate(const gram::Phenotype& phenotype) noexcept override;
   gram::Fitness calculateFitness(std::string program);
+  
 
 private:
-  std::string desired;
+  unsigned long desired;;
 };
 
-#endif // GRAM_TEST_STRING_DIFF_EVALUATOR
+#endif 

@@ -8,93 +8,67 @@
 #include "gram/language/symbol/Symbol.h"
 #include "gram/language/symbol/Terminal.h"
 
-#include <stdio.h>
-#include <cstring>
-#include <sstream>
+#include "gram/language/parser/BnfRuleParser.h"
+
 #include <iostream>
-#include <iomanip>
 #include <fstream>
+#include <string>
+#include <regex>
 
 using namespace gram;
 using namespace std;
 
-//私有成员变量有向量类型symbol
 ContextFreeMapper::ContextFreeMapper(unique_ptr<ContextFreeGrammar> grammar, unsigned long wrappingLimit)
     : grammar(move(grammar)), wrappingLimit(wrappingLimit) {
   symbols.reserve(512);
 }
-  
+
+//add symbol of closed
+Terminal seqOfClose("</Sequence>");
+Terminal fallOfClose("</Fallback>");
+
 Phenotype ContextFreeMapper::map(const Genotype& genotype) {
   symbols.clear();
 
-  Phenotype phenotype;                    //表征型
+  Phenotype phenotype;
   phenotype.reserve(512);
 
-  unsigned long wrappings = 0;
-  unsigned long codonIndex = 0;                                       //数值字符串索引
+  Phenotype stringForPrint;
+  stringForPrint.reserve(1024);
 
-  //起点规则
-  Rule& startRule = grammar->startRule();                                 //输入：grammar
-  unsigned long optionIndex = genotype[codonIndex] % startRule.size();    //一条语法中规则选择的索引
-  Option& startOption = startRule[optionIndex];                           //选择第一行语法对应的规则
+  unsigned long wrappings = 0;
+  unsigned long codonIndex = 0;
+
+  Rule& startRule = grammar->startRule();
+  unsigned long optionIndex = genotype[codonIndex] % startRule.size();
+  Option& startOption = startRule[optionIndex];
   pushOption(startOption);
   codonIndex += 1;
 
-  //写文件头_211203
-  // std::string startName = startRule.getName();//开始点名字
-  std::string str_fileHead = "<?xml version=\"1.0\"?>\n\
-<root main_tree_to_execute=\"BehaviorTree\">\n\
-    <BehaviorTree ID=\"BehaviorTree\">";
-  ofstream xmlOut("behaviorTreeXml.xml");
-  xmlOut<<str_fileHead<<endl;
+  //head of the xml file
+  ofstream fp;
+  fp.open("//home//dcs//autoclose.xml", ios::out);
 
-  int indentationIndex = 1;          //缩进索引参数
-  int terminalNodeCnt = 0;
+  fp << "<?xml version=\"1.0\"?>" << endl;
+  fp << "<root main_tree_to_execute=\"BehaviorTree\">" << endl;
+  fp << "<BehaviorTree ID=\"BehaviorTree\">" << endl;
 
-  //symbol的大小
-  int sizeOfSymbols = symbols.size();//比较大小
 
-  std::unordered_map<int, std::string> endNonterminalNode;
-  endNonterminalNode.reserve(3);
-
-  //由symbol映射为phenotype
   while (!symbols.empty()) {
-    //弹出非终端
     auto symbol = symbols.back();
     symbols.pop_back();
 
-    std::string verticalSpace = "";
-    std::string verticalSpace_end = "";
-
-
-    //终端节点
-    if (symbol->isTerminal()){                               //终端规则
+    if (symbol->isTerminal()) {
       auto terminal = symbol->toTerminal();
-      phenotype += terminal.getValue();
 
-      std::string terminalNode = terminal.getValue(); 
-
-      //写入终端内容
-      if(terminalNodeCnt == 0) {
-        verticalSpace.append(4*(indentationIndex + 1) , ' ');
-        xmlOut<<verticalSpace<<"<AlwaysSuccess name=\""<<terminalNode<<"\"/>"<<endl;
-      }
-      else {
-        verticalSpace.append(4*(indentationIndex + 2) , ' ');
-        xmlOut<<verticalSpace<<"<AlwaysSuccess name=\""<<terminalNode<<"\"/>"<<endl;
-
-        verticalSpace_end.append(4*(indentationIndex + 1) , ' ');
-        std::string str = endNonterminalNode[indentationIndex + 1];
-        xmlOut<<verticalSpace_end<<"</"<<str<<">"<<endl;
+      if(terminal.getValue() != "</Sequence>" && terminal.getValue() != "</Fallback>") {
+        phenotype += terminal.getValue();
       }
 
+      stringForPrint += terminal.getValue();
 
-      terminalNodeCnt += 1;
-    } 
-    
-    //非终端节点（内部节点）
-    else {
-      if (codonIndex == genotype.size()) {              //出现包装事件抛出异常
+    } else {
+      if (codonIndex == genotype.size()) {
         codonIndex = 0;
         wrappings += 1;
 
@@ -103,52 +77,69 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
         }
       }
 
-      //未达到终端的处理
       auto nonTerminal = symbol->toNonTerminal();
       Rule& rule = nonTerminal.toRule();
-      optionIndex = genotype[codonIndex] % rule.size();
-      Option& option = rule[optionIndex];                //option为当前语法中选择的规则
-      pushOption(option);
-      codonIndex += 1;
 
-      int IndexOfSymbols = symbols.size();               //symbols的长度
+      string nameOfControl = rule.getName();
+      regex pattern("^\\{([a-zA-Z][a-zA-Z0-9-]*)}");
+      smatch matches;
 
-      //修改缩进格式大小
-      if(sizeOfSymbols < IndexOfSymbols) indentationIndex += 1;
-      else if(sizeOfSymbols > IndexOfSymbols) indentationIndex -= 1;
+      if(!regex_search(nameOfControl, matches, pattern)) {
+        optionIndex = genotype[codonIndex] % rule.size();
+        Option& option = rule[optionIndex];
+        pushOption(option);
+        codonIndex += 1;
+      }
+      else {
+        string nameOfPrint = matches[1];
+        string headOfPrint = "<" + nameOfPrint + ">";
 
-      //写非终端内容
-      std::string NonTerminalNode = rule.getName();
-      verticalSpace.append(4*indentationIndex , ' ');   //由参数进行缩进格式的修改
-       
-      //写入非终端内容
-      if(NonTerminalNode == "Sequence" || NonTerminalNode == "Fallback"){
-        xmlOut<<verticalSpace<<"<"<<NonTerminalNode<<">"<<endl;
-        endNonterminalNode[indentationIndex] = NonTerminalNode;
-      } 
+        stringForPrint += headOfPrint;
 
-      sizeOfSymbols = IndexOfSymbols;//计算
+        optionIndex = genotype[codonIndex] % rule.size();
+        Option& option = rule[optionIndex];
+        pushOptionAndString(option, nameOfPrint);
+        codonIndex += 1;
 
+      }
 
     }
-
-
   }
 
-  //写入文件尾
-  std::string str_fileBack = "    </BehaviorTree>\n\
-</root>";
-  xmlOut<<str_fileBack<<endl;
-  xmlOut.close();
+  fp << stringForPrint <<endl;
+  fp << "</BehaviorTree>" << endl;
+  fp << "</root>" << endl;
+  fp.close();
 
   return phenotype;
 }
 
-//由后到前
 void ContextFreeMapper::pushOption(Option& option) {
   unsigned long optionSize = option.size();
 
   for (long i = optionSize - 1; i >= 0; i--) {
     symbols.push_back(&option[i]);
   }
+}
+
+void ContextFreeMapper::pushOptionAndString(Option& option, string controlNode) {
+  if(controlNode == "Sequence") {
+    unsigned long optionSize = option.size();
+
+    symbols.push_back(move(&seqOfClose));
+
+    for (long i = optionSize - 1; i >= 0; i--) {
+    symbols.push_back(&option[i]);
+    }
+  }
+  else {
+    unsigned long optionSize = option.size();
+
+    symbols.push_back(move(&fallOfClose));
+
+    for (long i = optionSize - 1; i >= 0; i--) {
+    symbols.push_back(&option[i]);
+    }
+  }
+
 }

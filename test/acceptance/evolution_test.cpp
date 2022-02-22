@@ -25,6 +25,7 @@
 #include "gram/util/logger/NullLogger.h"
 
 #include "StringDiffEvaluator.h"
+#include "ActionDiffEvaluator.h"
 
 using namespace fakeit;
 using namespace gram;
@@ -44,13 +45,28 @@ TEST_CASE("evolution_test") {
   auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
   auto reproducer = make_unique<PassionateReproducer>(move(selector), move(crossover), move(mutation));
 
-  // string grammarString = "<word> ::= <word> <char> | <char>\n"
-  //                        "<char> ::= \"g\" | \"r\" | \"a\" | \"m\"";
+  /* behavior
+  condition:{"picked a?", "a at pos p?", "a on b?"};
+  action:{"pick a!", "place on a!", "place at pos p!", "put a on b!", "put a at pos p!", "apply force a!"};
+  */
 
-  string grammarString = "<s> ::= <Sequence> | <Fallback>\n"
-                         "<Sequence> ::= <Fallback> <excution> | <excution> <excution>\n"
-                         "<Fallback> ::= <Sequence> <excution> | <excution> <excution>\n"
-                         "<excution> ::= \"g\" | \"r\" | \"a\" | \"m\"";
+  //test_grammarString01
+  string grammarString = "<startRule> ::= <{Sequence}>\n"
+                         "<{Sequence}> ::= <{Sequence}> <{Fallback}> | <{Fallback}> <{Sequence}> | <{Fallback}>\n"
+                         "<{Fallback}> ::= \"g\"|\"r\"|\"a\"|\"m\"";
+
+  //test_grammarString02
+  // string grammarString = "<startRule> ::= <{Sequence}>\n"
+  //                        "<{Sequence}> ::= <{Sequence}> <*Fallback*> | <*Fallback*><{Sequence}> | <*Fallback*>\n"
+  //                        "<*Fallback*> ::= \"g\"|\"r\"|\"a\"|\"m\"";
+
+  // string grammarString = "<StartRule> ::= <Sequence> | <Fallback>\n"
+  //                        "<Sequence> ::= <Fallback> <Fallback> | <Fallback> <action> | <action> <Fallback> | <condition> <action>\n"
+  //                        "<Fallback> ::= <Sequence> <Sequence> | <Sequence> <action> | <action> <Sequence> | <condition> <action>\n"
+  //                        "<condition> ::= \"<Condition ID=\'Condition\' name=\'picked a?\'/>\" | \"<Condition ID=\'Condition\' name=\'a at pos p?\'/>\" | \"<Condition ID=\'Condition\' name=\'a on b?\'/>\" \n"
+  //                        "<action> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\" | \"<Action ID=\'Action\' name=\'place on a!\'/>\" | \"<Action ID=\'Action\' name=\'place at pos p!\'/>\" "\
+  //                        " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\" | \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\" | \"<Action ID=\'Action\' name=\'apply force a!\'/>\"";
+
 
   BnfRuleParser parser;
 
@@ -62,6 +78,8 @@ TEST_CASE("evolution_test") {
   RandomInitializer initializer(move(numberGenerator4), 50);
 
   auto evaluator = make_unique<StringDiffEvaluator>("gram");
+
+  // auto evaluator = make_unique<ActionDiffEvaluator>(6);
   auto evaluatorCache = make_unique<EvaluatorCache>(move(evaluator));
   auto evaluationDriver = make_unique<SingleThreadDriver>(move(mapper1), move(evaluatorCache));
   auto logger = make_unique<NullLogger>();

@@ -16,8 +16,6 @@
 using namespace gram;
 using namespace std;
 
-//输出类contextFreeMapper的grammer
-//line是一行由\n分隔的语法
 ContextFreeGrammar BnfRuleParser::parse(string input) const {
   // todo: handle multi-line rules
 
@@ -26,14 +24,12 @@ ContextFreeGrammar BnfRuleParser::parse(string input) const {
   vector<string> lines = explode(input, "\n");
 
   for (auto line : lines) {
-    parseRule(grammar, line);//依次输入line，grammer为输出
+    parseRule(grammar, line);
   }
 
   return grammar;
 }
 
-//解析rule
-//弹出name，剪切name和等号，此时已经起名字
 void BnfRuleParser::parseRule(ContextFreeGrammar& grammar, string& line) const {
   string name;
 
@@ -43,9 +39,9 @@ void BnfRuleParser::parseRule(ContextFreeGrammar& grammar, string& line) const {
     return;
   }
 
-  //通过判断返回name，此时line是已经被裁剪过的
   if (!parseNonTerminal(name, line) || !parseEquals(line)) {
     throw InvalidGrammar();
+    printf("%s" , "parse name error!");//
   }
 
   Rule& rule = grammar.ruleNamed(name);
@@ -56,9 +52,8 @@ void BnfRuleParser::parseRule(ContextFreeGrammar& grammar, string& line) const {
   }
 }
 
-//输入的是剪切过后的
 unique_ptr<Option> BnfRuleParser::parseOption(ContextFreeGrammar& grammar, string& line) const {
-  auto option = make_unique<Option>();//新建
+  auto option = make_unique<Option>();
 
   while (line.length() > 0) {
     string name;
@@ -75,15 +70,15 @@ unique_ptr<Option> BnfRuleParser::parseOption(ContextFreeGrammar& grammar, strin
       break;
     } else {
       throw InvalidGrammar();
+      printf("%s" , "parse rule error!");
     }
   }
 
   return option;
 }
 
-//name为::=前的内容，匹配了所有内容
 bool BnfRuleParser::parseNonTerminal(string& name, string& line) const {
-  regex pattern("^<([a-zA-Z][a-zA-Z0-9-]*)>");
+  regex pattern("^<([{*a-zA-Z}][{*a-zA-Z0-9-}]*)>");
   smatch matches;
 
   if (!regex_search(line, matches, pattern)) {
@@ -97,9 +92,8 @@ bool BnfRuleParser::parseNonTerminal(string& name, string& line) const {
   return true;
 }
 
-//
 bool BnfRuleParser::parseTerminal(string& value, string& line) const {
-  regex pattern("^\"([a-zA-Z0-9| -!#$%&\\(\\)\\*\\+,-\\./:;<=>?@\\[\\\\\\]\\^_`{}~]+)\"");
+  regex pattern("^\"([a-zA-Z0-9| \' -!#$%&\\(\\)\\*\\+,-\\./:;<=>?@\\[\\\\\\]\\^_`{}~]+)\"");//recognize \'
   smatch matches;
 
   if (!regex_search(line, matches, pattern)) {
@@ -113,7 +107,6 @@ bool BnfRuleParser::parseTerminal(string& value, string& line) const {
   return true;
 }
 
-//无内容返回
 bool BnfRuleParser::parseEquals(string& line) const {
   regex pattern("^::=");
   smatch matches;
@@ -128,7 +121,6 @@ bool BnfRuleParser::parseEquals(string& line) const {
   return true;
 }
 
-//无内容返回，剪切分割符
 bool BnfRuleParser::parsePipe(string& line) const {
   regex pattern("^\\|");
   smatch matches;

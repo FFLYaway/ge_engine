@@ -27,6 +27,8 @@ private:
   unsigned long wrappingLimit;
   std::vector<Symbol*> symbols; // does not hold any state
   void pushOption(Option& option);
+
+  void pushOptionAndString(Option& option, std::string controlNode);
 };
 }
 

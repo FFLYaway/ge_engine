@@ -3,7 +3,3 @@ include(${gram_SOURCE_DIR}/cmake/fakeit.cmake)
 
 add_subdirectory(acceptance)
 add_subdirectory(unit)
-add_subdirectory(behaviorTree)
-add_subdirectory(grammaradd)
-
-                

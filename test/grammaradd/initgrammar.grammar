@@ -1,2 +1,0 @@
-<word> ::= <word> <char> | <char>
-<char> ::= "g" | "r" | "a" | "m"
