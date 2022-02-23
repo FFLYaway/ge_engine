@@ -33,6 +33,7 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
   Phenotype phenotype;
   phenotype.reserve(512);
 
+
   Phenotype stringForPrint;
   stringForPrint.reserve(1024);
 
