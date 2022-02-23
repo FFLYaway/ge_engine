@@ -41,7 +41,7 @@ void BnfRuleParser::parseRule(ContextFreeGrammar& grammar, string& line) const {
 
   if (!parseNonTerminal(name, line) || !parseEquals(line)) {
     throw InvalidGrammar();
-    printf("%s" , "parse name error!");//
+    printf("%s", "parse name error!");//
   }
 
   Rule& rule = grammar.ruleNamed(name);
@@ -70,7 +70,7 @@ unique_ptr<Option> BnfRuleParser::parseOption(ContextFreeGrammar& grammar, strin
       break;
     } else {
       throw InvalidGrammar();
-      printf("%s" , "parse rule error!");
+      printf("%s", "parse rule error!");//
     }
   }
 
@@ -93,7 +93,7 @@ bool BnfRuleParser::parseNonTerminal(string& name, string& line) const {
 }
 
 bool BnfRuleParser::parseTerminal(string& value, string& line) const {
-  regex pattern("^\"([a-zA-Z0-9| \' -!#$%&\\(\\)\\*\\+,-\\./:;<=>?@\\[\\\\\\]\\^_`{}~]+)\"");//recognize \'
+  regex pattern("^\"([a-zA-Z0-9| \' -!#$%&\\(\\)\\*\\+,-\\.'/:;<=>?@\\[\\\\\\]\\^_`{}~]+)\"");//recognize \'
   smatch matches;
 
   if (!regex_search(line, matches, pattern)) {
