@@ -50,11 +50,16 @@ TEST_CASE("evolution_test") {
   action:{"pick a!", "place on a!", "place at pos p!", "put a on b!", "put a at pos p!", "apply force a!"};
   */
 
+  /*
+  语法问题：1.不能由sequence扩展为两个fallback的同时，fallback扩展为两个sequence
+  */
+
   //test_grammarString01
   string grammarString = "<startRule> ::= <{Sequence}>|<{Fallback}>\n"
-                         "<{Sequence}> ::= <{Fallback}> <action> | <action> <action> | <action> <{Fallback}> \n"
-                         "<{Fallback}> ::= <{Sequence}> <action> | <action> <action> | <action> <{Sequence}>\n"
-                         "<action> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\"|\"<Action ID=\'Action\' name=\'put a on b!\'/>\"|\"<Action ID=\'Action\' name=\'put a at pos p!\'/>\"|\"<Action ID=\'Action\' name=\'place at pos p!\'/>\"";
+                         "<{Sequence}> ::= <{Fallback}> <*action*> | <*action*> <*action*> | <*action*> <{Fallback}>\n"
+                         "<{Fallback}> ::= <{Sequence}> <*action*> | <*action*> <*action*> | <*action*> <{Sequence}>\n"
+                         "<*action*> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\" | \"<Action ID=\'Action\' name=\'place on a!\'/>\" | \"<Action ID=\'Action\' name=\'place at pos p!\'/>\" "\
+                         " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\" | \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\" | \"<Action ID=\'Action\' name=\'apply force a!\'/>\"";
 
   //test_grammarString02
   // string grammarString = "<startRule> ::= <{Sequence}>\n"
@@ -82,7 +87,7 @@ TEST_CASE("evolution_test") {
   // auto evaluator = make_unique<StringDiffEvaluator>("gram");
   // auto evaluator = make_unique<ActionDiffEvaluator>(6);
 
-  auto evaluator = make_unique<StringDiffEvaluator>("<Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/>");
+  auto evaluator = make_unique<StringDiffEvaluator>("<Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
 
   auto evaluatorCache = make_unique<EvaluatorCache>(move(evaluator));
   auto evaluationDriver = make_unique<SingleThreadDriver>(move(mapper1), move(evaluatorCache));
@@ -101,5 +106,5 @@ TEST_CASE("evolution_test") {
   REQUIRE(result.fitness() == 0.0);
   // REQUIRE(result.serialize(*mapper2) == "gram");
 
-  REQUIRE(result.serialize(*mapper2) == "<Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/>");
+  REQUIRE(result.serialize(*mapper2) == "<Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
 }
