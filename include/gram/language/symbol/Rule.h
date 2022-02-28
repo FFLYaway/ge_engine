@@ -19,7 +19,9 @@ public:
   Option& operator[](unsigned long index) const;
   unsigned long size() const;
 
-private://name和options两个成员变量
+  void delOption(unsigned long index);//limit the occurrence member function
+
+private:
   std::string name;
   std::vector<std::unique_ptr<Option>> options;
 };

@@ -81,28 +81,51 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
       auto nonTerminal = symbol->toNonTerminal();
       Rule& rule = nonTerminal.toRule();
 
-      string nameOfControl = rule.getName();
-      regex pattern("^\\{([a-zA-Z][a-zA-Z0-9-]*)}");
+      //recognize the rule of GE
+      string nameOfRule = rule.getName();
+      regex pattern("^\\{([a-zA-Z][a-zA-Z0-9-]*)\\}");
+      regex pattern_limit("^\\*([a-zA-Z][a-zA-Z0-9-]*)\\*");
       smatch matches;
+      smatch matches_limit;
 
-      if(!regex_search(nameOfControl, matches, pattern)) {
-        optionIndex = genotype[codonIndex] % rule.size();
-        Option& option = rule[optionIndex];
-        pushOption(option);
-        codonIndex += 1;
-      }
-      else {
+      //auto close the control node
+      if(regex_search(nameOfRule, matches, pattern)) {
         string nameOfPrint = matches[1];
         string headOfPrint = "<" + nameOfPrint + ">";
 
-        stringForPrint += headOfPrint;
+        stringForPrint += headOfPrint;//write down the head of xml file
 
         optionIndex = genotype[codonIndex] % rule.size();
         Option& option = rule[optionIndex];
         pushOptionAndString(option, nameOfPrint);
         codonIndex += 1;
-
       }
+
+
+      //recognize the limited behavior occurrences
+      else if(regex_search(nameOfRule, matches_limit, pattern_limit)) {
+        optionIndex = genotype[codonIndex] % rule.size();
+        Option& option = rule[optionIndex];
+
+        //behavior occurrences limit
+        rule.delOption(optionIndex);
+
+        //logger of limit behavior occurrences
+        string sizeOflimitRule = to_string(rule.size());
+        sizeOflimitRule = "<!--" + sizeOflimitRule + "-->";
+        stringForPrint += sizeOflimitRule;
+
+        pushOption(option);
+        
+        codonIndex += 1;
+      } 
+
+      else {
+        optionIndex = genotype[codonIndex] % rule.size();
+        Option& option = rule[optionIndex];
+        pushOption(option);
+        codonIndex += 1;
+      } 
 
     }
   }

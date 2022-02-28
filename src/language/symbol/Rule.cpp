@@ -32,3 +32,8 @@ Option& Rule::operator[](unsigned long index) const {
 unsigned long Rule::size() const {
   return options.size();
 }
+
+//limit the behavior occurrences
+void Rule::delOption(unsigned long index) {
+  options.erase(options.begin() + index);
+}

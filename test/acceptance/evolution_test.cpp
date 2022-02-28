@@ -56,10 +56,19 @@ TEST_CASE("evolution_test") {
 
   //test_grammarString01
   string grammarString = "<startRule> ::= <{Sequence}>|<{Fallback}>\n"
-                         "<{Sequence}> ::= <{Fallback}> <*action*> | <*action*> <*action*> | <*action*> <{Fallback}>\n"
-                         "<{Fallback}> ::= <{Sequence}> <*action*> | <*action*> <*action*> | <*action*> <{Sequence}>\n"
-                         "<*action*> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\" | \"<Action ID=\'Action\' name=\'place on a!\'/>\" | \"<Action ID=\'Action\' name=\'place at pos p!\'/>\" "\
-                         " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\" | \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\" | \"<Action ID=\'Action\' name=\'apply force a!\'/>\"";
+                         "<{Sequence}> ::= <{Fallback}> <*action*> | <condition> <*action*> "\
+                         "|<condition><{Fallback}>| <*action*> <{Fallback}>|<*action*><*action*>\n"
+                         "<{Fallback}> ::= <{Sequence}> <*action*> | <condition> <*action*> "\
+                         "|<condition><{Sequence}>| <*action*> <{Sequence}>|<*action*><*action*>\n"
+                         "<condition> ::= \"<Condition ID=\'Condition\' name=\'picked a?\'/>\" "\
+                         "| \"<Condition ID=\'Condition\' name=\'a at pos p?\'/>\"        "\
+                         "| \"<Condition ID=\'Condition\' name=\'a on b?\'/>\" \n"
+                         "<*action*> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\"     "\
+                         "| \"<Action ID=\'Action\' name=\'place on a!\'/>\"              "\
+                         "| \"<Action ID=\'Action\' name=\'place at pos p!\'/>\"          "\
+                         " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\"             "\
+                         "| \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\"          "\
+                         "| \"<Action ID=\'Action\' name=\'apply force a!\'/>\"";
 
   //test_grammarString02
   // string grammarString = "<startRule> ::= <{Sequence}>\n"
@@ -87,7 +96,8 @@ TEST_CASE("evolution_test") {
   // auto evaluator = make_unique<StringDiffEvaluator>("gram");
   // auto evaluator = make_unique<ActionDiffEvaluator>(6);
 
-  auto evaluator = make_unique<StringDiffEvaluator>("<Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
+  auto evaluator = make_unique<StringDiffEvaluator>("<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
+  // <Condition ID='Condition' name='picked a?'/>
 
   auto evaluatorCache = make_unique<EvaluatorCache>(move(evaluator));
   auto evaluationDriver = make_unique<SingleThreadDriver>(move(mapper1), move(evaluatorCache));
@@ -106,5 +116,5 @@ TEST_CASE("evolution_test") {
   REQUIRE(result.fitness() == 0.0);
   // REQUIRE(result.serialize(*mapper2) == "gram");
 
-  REQUIRE(result.serialize(*mapper2) == "<Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
+  REQUIRE(result.serialize(*mapper2) == "<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
 }
