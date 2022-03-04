@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Fallback>
+                <Condition ID='Condition' name='picked a?'/>
+                <Action ID='Action' name='put a on b!'/>
+            </Fallback>
+            <Action ID='Action' name='put a at pos p!'/>
+            <Action ID='Action' name='apply force a!'/>
+        </Sequence>
+    </BehaviorTree>
+</root>

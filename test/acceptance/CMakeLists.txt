@@ -3,8 +3,8 @@ add_executable(atest
         StringDiffEvaluator.h
         evolution_test.cpp
         test.cpp
-        ActionDiffEvaluator.h
-        ActionDiffEvaluator.cpp
+        StringReplace.h
+        StringReplace.cpp
         )
 
 target_include_directories(atest PRIVATE

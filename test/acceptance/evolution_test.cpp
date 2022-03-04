@@ -25,11 +25,16 @@
 #include "gram/util/logger/NullLogger.h"
 
 #include "StringDiffEvaluator.h"
-#include "ActionDiffEvaluator.h"
+#include "StringReplace.h"
+#include "StringReplace.cpp"
+
+#include <regex>
 
 using namespace fakeit;
 using namespace gram;
 using namespace std;
+
+
 
 TEST_CASE("evolution_test") {
   auto numberGenerator1 = make_unique<StdNumberGenerator<mt19937>>();
@@ -50,54 +55,47 @@ TEST_CASE("evolution_test") {
   action:{"pick a!", "place on a!", "place at pos p!", "put a on b!", "put a at pos p!", "apply force a!"};
   */
 
-  /*
-  语法问题：1.不能由sequence扩展为两个fallback的同时，fallback扩展为两个sequence
-  */
-
   //test_grammarString01
-  string grammarString = "<startRule> ::= <{Sequence}>|<{Fallback}>\n"
-                         "<{Sequence}> ::= <{Fallback}> <*action*> | <condition> <*action*> "\
-                         "|<condition><{Fallback}>| <*action*> <{Fallback}>|<*action*><*action*>\n"
-                         "<{Fallback}> ::= <{Sequence}> <*action*> | <condition> <*action*> "\
-                         "|<condition><{Sequence}>| <*action*> <{Sequence}>|<*action*><*action*>\n"
+  string grammarString_origin = "<startRule> ::= <{Sequence}>|<{Fallback}>\n"
+
+                         "<{Sequence}> ::= <{Fallback}><{Fallback}>| <condition><{Fallback}>|<condition><*action*> "\
+                         "|<{Fallback}><actions>|<actions>\n"
+
+                         "<{Fallback}> ::= <{Sequence}><{Sequence}>|<condition><{Sequence}> |<condition> <*action*> "\
+                         "|<{Sequence}><actions>| <actions>\n"
+
                          "<condition> ::= \"<Condition ID=\'Condition\' name=\'picked a?\'/>\" "\
                          "| \"<Condition ID=\'Condition\' name=\'a at pos p?\'/>\"        "\
                          "| \"<Condition ID=\'Condition\' name=\'a on b?\'/>\" \n"
+
+                         "<actions> ::= <*action*>|<*action*><*action*> \n"
+
                          "<*action*> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\"     "\
                          "| \"<Action ID=\'Action\' name=\'place on a!\'/>\"              "\
                          "| \"<Action ID=\'Action\' name=\'place at pos p!\'/>\"          "\
                          " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\"             "\
                          "| \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\"          "\
-                         "| \"<Action ID=\'Action\' name=\'apply force a!\'/>\"";
+                         "| \"<Action ID=\'Action\' name=\'apply force a!\'/>\"\n ";
 
+  auto grammar_to = make_unique<StringReplace>(grammarString_origin);
+  string grammarString = grammar_to.replaceTogrammar();
   //test_grammarString02
   // string grammarString = "<startRule> ::= <{Sequence}>\n"
   //                        "<{Sequence}> ::= <{Sequence}> <*Fallback*> | <*Fallback*><{Sequence}> | <*Fallback*>\n"
   //                        "<*Fallback*> ::= \"g\"|\"r\"|\"a\"|\"m\"";
 
-  //test_grammarString03
-  // string grammarString = "<StartRule> ::= <{Sequence}> | <{Fallback}>\n"
-  //                        "<{Sequence}> ::= <{Fallback}> <{Fallback}> | <{Fallback}> <action> | <action> <{Fallback}> | <condition> <action>\n"
-  //                        "<{Fallback}> ::= <{Sequence}> <{Sequence}> | <{Sequence}> <action> | <action> <{Sequence}> | <condition> <action>\n"
-  //                        "<condition> ::= \"<Condition ID=\'Condition\' name=\'picked a?\'/>\" | \"<Condition ID=\'Condition\' name=\'a at pos p?\'/>\" | \"<Condition ID=\'Condition\' name=\'a on b?\'/>\" \n"
-  //                        "<action> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\" | \"<Action ID=\'Action\' name=\'place on a!\'/>\" | \"<Action ID=\'Action\' name=\'place at pos p!\'/>\" "\
-  //                        " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\" | \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\" | \"<Action ID=\'Action\' name=\'apply force a!\'/>\"";
-
-
   BnfRuleParser parser;
 
   auto grammar1 = make_unique<ContextFreeGrammar>(parser.parse(grammarString));
   auto grammar2 = make_unique<ContextFreeGrammar>(parser.parse(grammarString));
-  auto mapper1 = make_unique<ContextFreeMapper>(move(grammar1), 1);
+  auto mapper1 = make_unique<ContextFreeMapper>(move(grammar1), 1); //the second parameter mean the condx appear occurrence
   auto mapper2 = make_unique<ContextFreeMapper>(move(grammar2), 1);
 
   RandomInitializer initializer(move(numberGenerator4), 50);
 
   // auto evaluator = make_unique<StringDiffEvaluator>("gram");
-  // auto evaluator = make_unique<ActionDiffEvaluator>(6);
 
-  auto evaluator = make_unique<StringDiffEvaluator>("<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
-  // <Condition ID='Condition' name='picked a?'/>
+  auto evaluator = make_unique<StringDiffEvaluator>("<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
 
   auto evaluatorCache = make_unique<EvaluatorCache>(move(evaluator));
   auto evaluationDriver = make_unique<SingleThreadDriver>(move(mapper1), move(evaluatorCache));
@@ -116,5 +114,5 @@ TEST_CASE("evolution_test") {
   REQUIRE(result.fitness() == 0.0);
   // REQUIRE(result.serialize(*mapper2) == "gram");
 
-  REQUIRE(result.serialize(*mapper2) == "<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='pick a!'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
+  REQUIRE(result.serialize(*mapper2) == "<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
 }

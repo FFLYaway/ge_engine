@@ -24,8 +24,8 @@ ContextFreeMapper::ContextFreeMapper(unique_ptr<ContextFreeGrammar> grammar, uns
 }
 
 //add symbol of closed
-Terminal seqOfClose("</Sequence>");
-Terminal fallOfClose("</Fallback>");
+// Terminal seqOfClose("</Sequence>");
+// Terminal fallOfClose("</Fallback>");
 
 Phenotype ContextFreeMapper::map(const Genotype& genotype) {
   symbols.clear();
@@ -47,12 +47,12 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
   codonIndex += 1;
 
   //head of the xml file
-  ofstream fp;
-  fp.open("//home//dcs//autoclose.xml", ios::out);
+  // ofstream fp;
+  // fp.open("//home//dcs//gram//test//acceptance//BehaviorTree.xml", ios::out);
 
-  fp << "<?xml version=\"1.0\"?>" << endl;
-  fp << "<root main_tree_to_execute=\"BehaviorTree\">" << endl;
-  fp << "<BehaviorTree ID=\"BehaviorTree\">" << endl;
+  // fp << "<?xml version=\"1.0\"?>" << endl;
+  // fp << "<root main_tree_to_execute=\"BehaviorTree\">" << endl;
+  // fp << "<BehaviorTree ID=\"BehaviorTree\">" << endl;
 
 
   while (!symbols.empty()) {
@@ -62,7 +62,7 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
     if (symbol->isTerminal()) {
       auto terminal = symbol->toTerminal();
 
-      if(terminal.getValue() != "</Sequence>" && terminal.getValue() != "</Fallback>") {
+      if(terminal.getValue() != "</Sequence>" && terminal.getValue() != "</Fallback>"&& terminal.getValue() != "<Fallback>"&& terminal.getValue() != "<Sequence>") {
         phenotype += terminal.getValue();
       }
 
@@ -74,66 +74,67 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
         wrappings += 1;
 
         if (wrappings > wrappingLimit) {
-          throw WrappingLimitExceeded(wrappingLimit);
+          break;
+          // throw WrappingLimitExceeded(wrappingLimit);
         }
       }
 
       auto nonTerminal = symbol->toNonTerminal();
       Rule& rule = nonTerminal.toRule();
 
-      //recognize the rule of GE
-      string nameOfRule = rule.getName();
-      regex pattern("^\\{([a-zA-Z][a-zA-Z0-9-]*)\\}");
-      regex pattern_limit("^\\*([a-zA-Z][a-zA-Z0-9-]*)\\*");
-      smatch matches;
-      smatch matches_limit;
+      // recognize the rule of GE
+      // string nameOfRule = rule.getName();
+      // regex pattern("^\\{([a-zA-Z][a-zA-Z0-9-]*)\\}");
+      // regex pattern_limit("^\\*([a-zA-Z][a-zA-Z0-9-]*)\\*");
+      // smatch matches;
+      // smatch matches_limit;
 
-      //auto close the control node
-      if(regex_search(nameOfRule, matches, pattern)) {
-        string nameOfPrint = matches[1];
-        string headOfPrint = "<" + nameOfPrint + ">";
+      // //auto close the control node
+      // if(regex_search(nameOfRule, matches, pattern)) {
+      //   string nameOfPrint = matches[1];
+      //   string headOfPrint = "<" + nameOfPrint + ">";
 
-        stringForPrint += headOfPrint;//write down the head of xml file
+      //   stringForPrint += headOfPrint;//write down the head of xml file
 
-        optionIndex = genotype[codonIndex] % rule.size();
-        Option& option = rule[optionIndex];
-        pushOptionAndString(option, nameOfPrint);
-        codonIndex += 1;
-      }
+      //   optionIndex = genotype[codonIndex] % rule.size();
+      //   Option& option = rule[optionIndex];
+      //   pushOptionAndString(option, nameOfPrint);
+      //   codonIndex += 1;
+      // }
 
 
       //recognize the limited behavior occurrences
-      else if(regex_search(nameOfRule, matches_limit, pattern_limit)) {
-        optionIndex = genotype[codonIndex] % rule.size();
-        Option& option = rule[optionIndex];
+      // else if(regex_search(nameOfRule, matches_limit, pattern_limit)) {
+      //   optionIndex = genotype[codonIndex] % rule.size();
+      //   Option& option = rule[optionIndex];
 
-        //behavior occurrences limit
-        rule.delOption(optionIndex);
+      //   //behavior occurrences limit
+      //   rule.delOption(optionIndex);
 
-        //logger of limit behavior occurrences
-        string sizeOflimitRule = to_string(rule.size());
-        sizeOflimitRule = "<!--" + sizeOflimitRule + "-->";
-        stringForPrint += sizeOflimitRule;
+      //   //logger of limit behavior occurrences
+      //   string sizeOflimitRule = to_string(rule.size());
+      //   sizeOflimitRule = "<!-- rule size:" + sizeOflimitRule + "-->";
+      //   stringForPrint += sizeOflimitRule;
 
-        pushOption(option);
+      //   pushOption(option);
         
-        codonIndex += 1;
-      } 
+      //   codonIndex += 1;
+      // } 
 
-      else {
+      // else {
         optionIndex = genotype[codonIndex] % rule.size();
         Option& option = rule[optionIndex];
         pushOption(option);
         codonIndex += 1;
-      } 
+      // } 
 
     }
   }
 
-  fp << stringForPrint <<endl;
-  fp << "</BehaviorTree>" << endl;
-  fp << "</root>" << endl;
-  fp.close();
+  // fp << stringForPrint <<endl;
+  // fp << "</BehaviorTree>" << endl;
+  // fp << "</root>" << endl;
+  // fp.close();
 
   return phenotype;
 }
@@ -146,24 +147,24 @@ void ContextFreeMapper::pushOption(Option& option) {
   }
 }
 
-void ContextFreeMapper::pushOptionAndString(Option& option, string controlNode) {
-  if(controlNode == "Sequence") {
-    unsigned long optionSize = option.size();
+// void ContextFreeMapper::pushOptionAndString(Option& option, string controlNode) {
+//   if(controlNode == "Sequence") {
+//     unsigned long optionSize = option.size();
 
-    symbols.push_back(move(&seqOfClose));
+//     symbols.push_back(move(&seqOfClose));
 
-    for (long i = optionSize - 1; i >= 0; i--) {
-    symbols.push_back(&option[i]);
-    }
-  }
-  else {
-    unsigned long optionSize = option.size();
+//     for (long i = optionSize - 1; i >= 0; i--) {
+//     symbols.push_back(&option[i]);
+//     }
+//   }
+//   else {
+//     unsigned long optionSize = option.size();
 
-    symbols.push_back(move(&fallOfClose));
+//     symbols.push_back(move(&fallOfClose));
 
-    for (long i = optionSize - 1; i >= 0; i--) {
-    symbols.push_back(&option[i]);
-    }
-  }
+//     for (long i = optionSize - 1; i >= 0; i--) {
+//     symbols.push_back(&option[i]);
+//     }
+//   }
 
-}
+// }
