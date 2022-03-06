@@ -23,10 +23,6 @@ ContextFreeMapper::ContextFreeMapper(unique_ptr<ContextFreeGrammar> grammar, uns
   symbols.reserve(512);
 }
 
-//add symbol of closed
-// Terminal seqOfClose("</Sequence>");
-// Terminal fallOfClose("</Fallback>");
-
 Phenotype ContextFreeMapper::map(const Genotype& genotype) {
   symbols.clear();
 
@@ -47,12 +43,12 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
   codonIndex += 1;
 
   //head of the xml file
-  // ofstream fp;
-  // fp.open("//home//dcs//gram//test//acceptance//BehaviorTree.xml", ios::out);
+  ofstream fp;
+  fp.open("//home//dcs//gram//test//acceptance//BehaviorTree.xml", ios::out);
 
-  // fp << "<?xml version=\"1.0\"?>" << endl;
-  // fp << "<root main_tree_to_execute=\"BehaviorTree\">" << endl;
-  // fp << "<BehaviorTree ID=\"BehaviorTree\">" << endl;
+  fp << "<?xml version=\"1.0\"?>" << endl;
+  fp << "<root main_tree_to_execute=\"BehaviorTree\">" << endl;
+  fp << "<BehaviorTree ID=\"BehaviorTree\">" << endl;
 
 
   while (!symbols.empty()) {
@@ -66,6 +62,7 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
         phenotype += terminal.getValue();
       }
 
+      //string diff to print
       stringForPrint += terminal.getValue();
 
     } else {
@@ -81,27 +78,6 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
 
       auto nonTerminal = symbol->toNonTerminal();
       Rule& rule = nonTerminal.toRule();
-
-      // recognize the rule of GE
-      // string nameOfRule = rule.getName();
-      // regex pattern("^\\{([a-zA-Z][a-zA-Z0-9-]*)\\}");
-      // regex pattern_limit("^\\*([a-zA-Z][a-zA-Z0-9-]*)\\*");
-      // smatch matches;
-      // smatch matches_limit;
-
-      // //auto close the control node
-      // if(regex_search(nameOfRule, matches, pattern)) {
-      //   string nameOfPrint = matches[1];
-      //   string headOfPrint = "<" + nameOfPrint + ">";
-
-      //   stringForPrint += headOfPrint;//write down the head of xml file
-
-      //   optionIndex = genotype[codonIndex] % rule.size();
-      //   Option& option = rule[optionIndex];
-      //   pushOptionAndString(option, nameOfPrint);
-      //   codonIndex += 1;
-      // }
-
 
       //recognize the limited behavior occurrences
       // else if(regex_search(nameOfRule, matches_limit, pattern_limit)) {
@@ -120,21 +96,18 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
         
       //   codonIndex += 1;
       // } 
-
-      // else {
         optionIndex = genotype[codonIndex] % rule.size();
         Option& option = rule[optionIndex];
         pushOption(option);
         codonIndex += 1;
-      // } 
 
     }
   }
 
-  // fp << stringForPrint <<endl;
-  // fp << "</BehaviorTree>" << endl;
-  // fp << "</root>" << endl;
-  // fp.close();
+  fp << stringForPrint <<endl;
+  fp << "</BehaviorTree>" << endl;
+  fp << "</root>" << endl;
+  fp.close();
 
   return phenotype;
 }
@@ -146,25 +119,3 @@ void ContextFreeMapper::pushOption(Option& option) {
     symbols.push_back(&option[i]);
   }
 }
-
-// void ContextFreeMapper::pushOptionAndString(Option& option, string controlNode) {
-//   if(controlNode == "Sequence") {
-//     unsigned long optionSize = option.size();
-
-//     symbols.push_back(move(&seqOfClose));
-
-//     for (long i = optionSize - 1; i >= 0; i--) {
-//     symbols.push_back(&option[i]);
-//     }
-//   }
-//   else {
-//     unsigned long optionSize = option.size();
-
-//     symbols.push_back(move(&fallOfClose));
-
-//     for (long i = optionSize - 1; i >= 0; i--) {
-//     symbols.push_back(&option[i]);
-//     }
-//   }
-
-// }

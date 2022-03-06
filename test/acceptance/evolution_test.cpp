@@ -26,7 +26,6 @@
 
 #include "StringDiffEvaluator.h"
 #include "StringReplace.h"
-#include "StringReplace.cpp"
 
 #include <regex>
 
@@ -56,13 +55,19 @@ TEST_CASE("evolution_test") {
   */
 
   //test_grammarString01
-  string grammarString_origin = "<startRule> ::= <{Sequence}>|<{Fallback}>\n"
+  string grammarString_origin = "<startRule> ::= <Sequence>|<Fallback>\n"
 
-                         "<{Sequence}> ::= <{Fallback}><{Fallback}>| <condition><{Fallback}>|<condition><*action*> "\
-                         "|<{Fallback}><actions>|<actions>\n"
+                        //  "<Sequence> ::= <s><Fallback><Fallback></s>| <s><condition><Fallback></s>|<s><condition><*action*></s> "\
+                        //  "|<s><Fallback><actions></s>|<s><actions></s>    \n"
 
-                         "<{Fallback}> ::= <{Sequence}><{Sequence}>|<condition><{Sequence}> |<condition> <*action*> "\
-                         "|<{Sequence}><actions>| <actions>\n"
+                        //  "<Fallback> ::= <f><Sequence><Sequence></f>|<f><condition><Sequence></f> |<f><condition><*action*></f> "\
+                        //  "|<f><Sequence><actions></f>| <f><actions></f>   \n"
+
+                         "<{Sequence}> ::= <Fallback><Fallback>| <condition><Fallback>|<condition><*action*> "\
+                         "|<Fallback><actions>|<actions>\n"
+
+                         "<{Fallback}> ::= <Sequence><Sequence>|<condition><Sequence> |<condition><*action*> "\
+                         "|<Sequence><actions>| <actions>\n"                      
 
                          "<condition> ::= \"<Condition ID=\'Condition\' name=\'picked a?\'/>\" "\
                          "| \"<Condition ID=\'Condition\' name=\'a at pos p?\'/>\"        "\
@@ -75,14 +80,16 @@ TEST_CASE("evolution_test") {
                          "| \"<Action ID=\'Action\' name=\'place at pos p!\'/>\"          "\
                          " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\"             "\
                          "| \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\"          "\
-                         "| \"<Action ID=\'Action\' name=\'apply force a!\'/>\"\n ";
+                         "| \"<Action ID=\'Action\' name=\'apply force a!\'/>\" \n";
+
+                        //  "<s> ::=\"<Sequence>\"\n"
+                        //  "</s> ::=\"</Sequence>\"\n"
+                        //  "<f> ::=\"<Fallback>\"\n"
+                        //  "</f> ::=\"</Fallback>\"";
+
 
   auto grammar_to = make_unique<StringReplace>(grammarString_origin);
-  string grammarString = grammar_to.replaceTogrammar();
-  //test_grammarString02
-  // string grammarString = "<startRule> ::= <{Sequence}>\n"
-  //                        "<{Sequence}> ::= <{Sequence}> <*Fallback*> | <*Fallback*><{Sequence}> | <*Fallback*>\n"
-  //                        "<*Fallback*> ::= \"g\"|\"r\"|\"a\"|\"m\"";
+  string grammarString = grammar_to -> replaceTogrammar();
 
   BnfRuleParser parser;
 

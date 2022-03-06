@@ -78,7 +78,7 @@ unique_ptr<Option> BnfRuleParser::parseOption(ContextFreeGrammar& grammar, strin
 }
 
 bool BnfRuleParser::parseNonTerminal(string& name, string& line) const {
-  regex pattern("^<([{\\*a-zA-Z}][{\\*a-zA-Z0-9-}]*)>");
+  regex pattern("^<([\\*a-zA-Z/][\\*a-zA-Z0-9-]*)>");
   smatch matches;
 
   if (!regex_search(line, matches, pattern)) {

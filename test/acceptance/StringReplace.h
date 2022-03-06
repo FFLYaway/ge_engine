@@ -3,16 +3,13 @@
 
 #include <memory>
 #include <string>
-
-#include "gram/util/helper.h"
-
-using namespace std;
+#include <vector>
 
 class StringReplace {
 public:
   StringReplace(std::string grammarString);
-  string& replace_all_distinct(string& str, const string& old_value, const string& new_value); 
-  string replaceTogrammar();    
+  std::string& replace_all_distinct(std::string& str, const std::string& old_value, const std::string& new_value); 
+  std::string replaceTogrammar();    
 
 private:
   std::string grammarString;
