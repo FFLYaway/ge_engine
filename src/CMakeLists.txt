@@ -41,6 +41,9 @@ set(SOURCE_FILES
         util/logger/NullLogger.cpp
         util/helper.cpp
         Evolution.cpp
+        # add by dcs
+        language/mapper/OccurLimit.cpp
+        # 
         ../include/gram/error/FitnessNotCalculated.h
         ../include/gram/error/InvalidGrammar.h
         ../include/gram/error/InvalidProbability.h
@@ -69,6 +72,9 @@ set(SOURCE_FILES
         ../include/gram/language/grammar/ContextFreeGrammar.h
         ../include/gram/language/mapper/ContextFreeMapper.h
         ../include/gram/language/mapper/Mapper.h
+        # add by dcs
+        ../include/gram/language/mapper/OccurLimit.h
+        # 
         ../include/gram/language/parser/RuleParser.h
         ../include/gram/language/parser/BnfRuleParser.h
         ../include/gram/language/symbol/NonTerminal.h

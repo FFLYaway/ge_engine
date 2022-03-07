@@ -18,6 +18,10 @@ public:
   Rule& ruleNamed(std::string name);
   Rule& startRule();
 
+  // delete the rule
+  void deleteRule(std::string name);
+  bool existOfRule(std::string name);
+
 private:
   std::string start;
   std::unordered_map<std::string, std::unique_ptr<Rule>> rules;//rules的结构为哈希表

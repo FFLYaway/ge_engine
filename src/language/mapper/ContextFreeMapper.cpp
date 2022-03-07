@@ -79,27 +79,41 @@ Phenotype ContextFreeMapper::map(const Genotype& genotype) {
       auto nonTerminal = symbol->toNonTerminal();
       Rule& rule = nonTerminal.toRule();
 
-      //recognize the limited behavior occurrences
-      // else if(regex_search(nameOfRule, matches_limit, pattern_limit)) {
-      //   optionIndex = genotype[codonIndex] % rule.size();
-      //   Option& option = rule[optionIndex];
+      // // add notes there
 
-      //   //behavior occurrences limit
-      //   rule.delOption(optionIndex);
+      // //recognize the limited behavior occurrences
+      // string nameOfRule = rule.getName();
+      // if(nameOfRule.find("*") != string::npos) {
+      //   if(rule.size() && grammar->existOfRule(nameOfRule)) {        
+      //     optionIndex = genotype[codonIndex] % rule.size();
+      //     Option& option = rule[optionIndex];
 
-      //   //logger of limit behavior occurrences
-      //   string sizeOflimitRule = to_string(rule.size());
-      //   sizeOflimitRule = "<!-- rule size:" + sizeOflimitRule + "-->";
-      //   stringForPrint += sizeOflimitRule;
+      //     //behavior occurrences limit
+      //     rule.delOption(optionIndex);
 
-      //   pushOption(option);
-        
-      //   codonIndex += 1;
-      // } 
+      //     //logger of limit behavior occurrences
+      //     string sizeOflimitRule = to_string(rule.size());
+      //     sizeOflimitRule = "<!-- rule size:" + sizeOflimitRule + "-->";
+      //     stringForPrint += sizeOflimitRule;
+
+      //     pushOption(option);
+      //     codonIndex += 1;
+      //   }
+      //   else if(!rule.size() && grammar->existOfRule(nameOfRule)) {
+      //     grammar->deleteRule(nameOfRule);
+      //     continue;
+      //   }
+      //   else { continue; }
+      // }
+
+      // // cancel notes there
+
+      // else {
         optionIndex = genotype[codonIndex] % rule.size();
         Option& option = rule[optionIndex];
         pushOption(option);
         codonIndex += 1;
+      // }
 
     }
   }

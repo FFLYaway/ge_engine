@@ -45,3 +45,19 @@ Rule& ContextFreeGrammar::startRule() {
 
   return *rules[start].get();
 }
+
+void ContextFreeGrammar::deleteRule(string name) {
+  // delete the rule
+  rules.erase(name);
+  
+  // // delete the rule symbol in other rule
+  // for(auto iter = rules.begin(); iter != rules.end(); ++iter) {
+  //   //
+
+  // }
+}
+
+bool ContextFreeGrammar::existOfRule(string name) {
+  if(rules.find(name) != rules.end()) { return true; }
+  else return false;
+}

@@ -56,38 +56,26 @@ TEST_CASE("evolution_test") {
 
   //test_grammarString01
   string grammarString_origin = "<startRule> ::= <Sequence>|<Fallback>\n"
+                                "<{Sequence}> ::= <Fallback><Fallback>| <condition><Fallback>|<condition><*action*> "\
+                                "| <Fallback><actions>|<actions>\n"
 
-                        //  "<Sequence> ::= <s><Fallback><Fallback></s>| <s><condition><Fallback></s>|<s><condition><*action*></s> "\
-                        //  "|<s><Fallback><actions></s>|<s><actions></s>    \n"
+                                "<{Fallback}> ::= <Sequence><Sequence>|<condition><Sequence> |<condition><*action*> "\
+                                "| <Sequence><actions>| <actions>\n"                      
 
-                        //  "<Fallback> ::= <f><Sequence><Sequence></f>|<f><condition><Sequence></f> |<f><condition><*action*></f> "\
-                        //  "|<f><Sequence><actions></f>| <f><actions></f>   \n"
+                                "<condition> ::= \"<Condition ID=\'Condition\' name=\'picked a?\'/>\" "\
+                                "| \"<Condition ID=\'Condition\' name=\'a at pos p?\'/>\"        "\
+                                "| \"<Condition ID=\'Condition\' name=\'a on b?\'/>\" \n"
 
-                         "<{Sequence}> ::= <Fallback><Fallback>| <condition><Fallback>|<condition><*action*> "\
-                         "|<Fallback><actions>|<actions>\n"
+                                "<actions> ::= <*action*>|<*action*><*action*> \n"
 
-                         "<{Fallback}> ::= <Sequence><Sequence>|<condition><Sequence> |<condition><*action*> "\
-                         "|<Sequence><actions>| <actions>\n"                      
+                               "<*action*> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\"     "\
+                               "| \"<Action ID=\'Action\' name=\'place on a!\'/>\"              "\
+                               "| \"<Action ID=\'Action\' name=\'place at pos p!\'/>\"          "\
+                               "| \"<Action ID=\'Action\' name=\'put a on b!\'/>\"             "\
+                               "| \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\"          "\
+                               "| \"<Action ID=\'Action\' name=\'apply force a!\'/>\" \n";
 
-                         "<condition> ::= \"<Condition ID=\'Condition\' name=\'picked a?\'/>\" "\
-                         "| \"<Condition ID=\'Condition\' name=\'a at pos p?\'/>\"        "\
-                         "| \"<Condition ID=\'Condition\' name=\'a on b?\'/>\" \n"
-
-                         "<actions> ::= <*action*>|<*action*><*action*> \n"
-
-                         "<*action*> ::= \"<Action ID=\'Action\' name=\'pick a!\'/>\"     "\
-                         "| \"<Action ID=\'Action\' name=\'place on a!\'/>\"              "\
-                         "| \"<Action ID=\'Action\' name=\'place at pos p!\'/>\"          "\
-                         " | \"<Action ID=\'Action\' name=\'put a on b!\'/>\"             "\
-                         "| \"<Action ID=\'Action\' name=\'put a at pos p!\'/>\"          "\
-                         "| \"<Action ID=\'Action\' name=\'apply force a!\'/>\" \n";
-
-                        //  "<s> ::=\"<Sequence>\"\n"
-                        //  "</s> ::=\"</Sequence>\"\n"
-                        //  "<f> ::=\"<Fallback>\"\n"
-                        //  "</f> ::=\"</Fallback>\"";
-
-
+  //string repalce
   auto grammar_to = make_unique<StringReplace>(grammarString_origin);
   string grammarString = grammar_to -> replaceTogrammar();
 
@@ -99,8 +87,6 @@ TEST_CASE("evolution_test") {
   auto mapper2 = make_unique<ContextFreeMapper>(move(grammar2), 1);
 
   RandomInitializer initializer(move(numberGenerator4), 50);
-
-  // auto evaluator = make_unique<StringDiffEvaluator>("gram");
 
   auto evaluator = make_unique<StringDiffEvaluator>("<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
 
@@ -119,7 +105,5 @@ TEST_CASE("evolution_test") {
   const Individual& result = lastGeneration.individualWithLowestFitness();
 
   REQUIRE(result.fitness() == 0.0);
-  // REQUIRE(result.serialize(*mapper2) == "gram");
-
   REQUIRE(result.serialize(*mapper2) == "<Condition ID='Condition' name='picked a?'/><Action ID='Action' name='put a on b!'/><Action ID='Action' name='put a at pos p!'/><Action ID='Action' name='apply force a!'/>");
 }

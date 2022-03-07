@@ -21,22 +21,8 @@ string& StringReplace::replace_all_distinct(string& str, const string& old_value
 }
 
 string StringReplace::replaceTogrammar() {
-  // // split the grammar
-  // vector<string> lines;
+  // split the grammar
 
-  // // \n
-  // string delimiter = "\n";
-  // unsigned long end = grammarString.find(delimiter);
-
-  // while (end != string::npos) {
-  //   lines.push_back(grammarString.substr(0, end));
-
-  //   grammarString = grammarString.substr(end + delimiter.length());
-
-  //   end = grammarString.find(delimiter);
-  // }
-
-  // lines.push_back(grammarString);
 
   vector<string> lines;
   lines = explode(grammarString,"\n");
